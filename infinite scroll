@@ -1,0 +1,68 @@
+// ==UserScript==
+// @name        Infinite scroll in kleinanzeigen
+// @namespace   Violentmonkey Scripts
+// @match       https://www.kleinanzeigen.de/*
+// @grant       none
+// @version     1.0
+// @author      Janusk22
+// @description 7.12.2022, 18:58:27
+// @license MIT
+// ==/UserScript==
+
+
+(function() {
+  var currentURL = window.location.href;
+  var isLoading = false;
+  //increment the page for the next results
+  function incrementPageNumber(url) {
+  // Define a regular expression to match "seite:X" where X is a number
+    var regex = /seite:(\d+)/;
+
+  // Use a callback function to increment the matched number by 1
+    var newUrl = url.replace(regex, function(match, pageNumber) {
+      var incrementedPage = (parseInt(pageNumber, 10) + 1).toString();
+      return "seite:" + incrementedPage;
+  });
+
+  return newUrl;
+}
+
+function isAtBottomOfPage() {
+  var scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  var pageHeight = document.documentElement.scrollHeight;
+  var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+  return scrollPosition + windowHeight >= pageHeight;
+}
+
+  // Make an AJAX request to get the results for page 2
+  function change(){
+  // Get the results for page 1
+    if (isLoading) {
+      return;
+    }
+
+    // Mark loading as in progress
+  isLoading = true;
+  var page1Results = document.querySelector("#srchrslt-adtable");
+  var xhr = new XMLHttpRequest();
+  currentURL = incrementPageNumber(currentURL)
+  xhr.open("GET", currentURL);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      // Parse the HTML response
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(xhr.responseText, "text/html");
+
+      // Get the results for page 2
+      var page2ResultsFromResponse = doc.querySelector("#srchrslt-adtable");
+
+      // Copy the results for page 2 to the new element we created earlier
+      page1Results.innerHTML = page1Results.innerHTML + page2ResultsFromResponse.innerHTML;
+      isLoading = false;
+    }
+  };
+  xhr.send();}
+window.addEventListener('scroll',function (){
+if (isAtBottomOfPage()){change()}
+})
+})();
