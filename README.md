@@ -22,5 +22,6 @@ Enjoy a smoother, more streamlined browsing experience on Kleinanzeigen. With au
 Whether you're a frequent Kleinanzeigen user or someone looking to save time and effort while searching for items, the "Auto Load Search Results Script for Kleinanzeigen" is an invaluable tool that will revolutionize the way you browse and interact with the platform. Start browsing with ease and efficiency today!
 
 ## Installation
+
 this require tamper monkey
 Just install this using the link https://greasyfork.org/en/scripts/476107-auto-load-in-kleinanzeigen
