@@ -1,2 +1,2 @@
-# infinite_scroll_kleinanzeigen
-This is a javascript wich help for autoscrolling in kleinanzeige.de by searching for an item
+# auto_load_kleinanzeigen
+This is a script wich help for automatically Load Next kleinanzeigen Search Results
