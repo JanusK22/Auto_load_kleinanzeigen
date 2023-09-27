@@ -10,10 +10,11 @@
 // ==/UserScript==
 
 
-(function() {
-  var currentURL = window.location.href;
-  var isLoading = false;
-  //increment the page for the next results
+function auto_load() {
+    var currentURL = window.location.href;
+    var isLoading = false;
+    var page1Results = document.querySelector("#srchrslt-adtable");
+    //increment the page for the next results
     function incrementPageNumber(url) {
         // Define a regular expression to match "seite:X" where X is a number
         var regex = /seite:(\d+)/;
@@ -21,7 +22,7 @@
         // Check if the URL contains the pattern
         if (!regex.test(url)) {
             // If the pattern is not found, add "seite:1/" to the beginning of the URL
-            url = url + "/seite:1/";
+            url = url.replace(/\/([^/]+)\/?$/, '/seite:1/$1');
         } else {
             url = url.replace(regex, function(match, pageNumber) {
                 // Parse the matched pageNumber as an integer, increment it by 1, and convert it back to a string
@@ -30,7 +31,6 @@
                 return "seite:" + incrementedPage;
             });
         }
-
         return url;
     }
 
@@ -41,35 +41,35 @@
         return scrollPosition + windowHeight >= pageHeight;
     }
 
-  // Make an AJAX request to get the results for page 2
-  function change(){
-  // Get the results for page 1
-    if (isLoading) {
-      return;
-    }
+    // Make an AJAX request to get the results for page 2
+    function change(){
+        if (isLoading) {
+            return;
+        }
 
-    // Mark loading as in progress
-  isLoading = true;
-  var page1Results = document.querySelector("#srchrslt-adtable");
-  var xhr = new XMLHttpRequest();
-  currentURL = incrementPageNumber(currentURL)
-  xhr.open("GET", currentURL);
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      // Parse the HTML response
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(xhr.responseText, "text/html");
+        // Mark loading as in progress
+        isLoading = true;
+        var xhr = new XMLHttpRequest();
+        currentURL = incrementPageNumber(currentURL)
+        xhr.open("GET", currentURL);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Parse the HTML response
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(xhr.responseText, "text/html");
 
-      // Get the results for page 2
-      var page2ResultsFromResponse = doc.querySelector("#srchrslt-adtable");
+                // Get the results for page 2
+                var page2ResultsFromResponse = doc.querySelector("#srchrslt-adtable");
 
-      // Copy the results for page 2 to the new element we created earlier
-      page1Results.innerHTML = page1Results.innerHTML + page2ResultsFromResponse.innerHTML;
-      isLoading = false;
-    }
-  };
-  xhr.send();}
-window.addEventListener('scroll',function (){
-if (isAtBottomOfPage()){change()}
-})
-})();
+                // Copy the results for page 2 to the new element we created earlier
+                page1Results.innerHTML = page1Results.innerHTML + page2ResultsFromResponse.innerHTML;
+                isLoading = false;
+            }
+        };
+        xhr.send();}
+    window.addEventListener('scroll',function (){
+        if (isAtBottomOfPage()){change()}
+    })
+};
+
+auto_load();
